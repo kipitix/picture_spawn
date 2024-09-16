@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/PuerkitoBio/goquery"
-	"github.com/cavaliergopher/grab/v3"
 	"github.com/geziyor/geziyor"
 	"github.com/geziyor/geziyor/client"
 	"github.com/geziyor/geziyor/export"
@@ -12,7 +9,7 @@ import (
 )
 
 const (
-	rootURL = "https://wallpaperswide.com"
+	rootURL = "https://wallpaperswide.com/vintage-desktop-wallpapers.html"
 )
 
 func main() {
@@ -23,40 +20,53 @@ func main() {
 
 	log.Info("Hello World")
 
-	parseRoot()
+	parseWallPages()
 }
 
-func parseRoot() {
+func parseWallFunc(g *geziyor.Geziyor, r *client.Response) {
+	r.HTMLDoc.Find("li.wall").Each(func(i int, s *goquery.Selection) {
+		if href, ok := s.Find("a").Attr("href"); ok {
 
-	parseWallFunc := func(g *geziyor.Geziyor, r *client.Response) {
-		r.HTMLDoc.Find("li.wall").Each(func(i int, s *goquery.Selection) {
-			if href, isExist := s.Find("a").Attr("href"); isExist {
-				// log.Info(s.Find("h1").Text())
-				imagePageURL := fmt.Sprintf("%s/%s", rootURL, href)
-				// log.Info(imageURL)
-				parseImage(imagePageURL, "1920x1080")
+			log.Info(s.Find("h1").Text())
+
+			imagePageURL := r.JoinURL(href)
+			log.Info(imagePageURL)
+
+			// parseImagePage(imagePageURL, "1920x1080")
+		}
+	})
+
+	r.HTMLDoc.Find("div.pagination").Find("a").Each(func(i int, s *goquery.Selection) {
+		if s.Text() == "Next »" {
+			if href, ok := s.Attr("href"); ok {
+				log.Info(href)
+				g.Get(r.JoinURL(href), parseWallFunc)
 			}
-		})
-	}
+		}
+	})
+}
 
+func parseWallPages() {
 	geziyor.NewGeziyor(&geziyor.Options{
 		StartURLs: []string{rootURL},
 		ParseFunc: parseWallFunc,
 		Exporters: []export.Exporter{&export.JSON{}},
 	}).Start()
-
 }
 
-func parseImage(imageULR string, resolution string) {
+func parseImagePage(imagePageULR string, resolution string) {
 
 	parseImageFunc := func(g *geziyor.Geziyor, r *client.Response) {
 		r.HTMLDoc.Find("div.wallpaper-resolutions").Each(func(i int, s *goquery.Selection) {
 			sel := s.Find("a")
 			for sel.Nodes != nil {
 				if sel.Nodes[0].FirstChild.Data == resolution {
-					if href, isExist := sel.Attr("href"); isExist {
-						imageURL := fmt.Sprintf("%s/%s", rootURL, href)
-						grab.Get("./images/", imageURL)
+					if href, ok := sel.Attr("href"); ok {
+						imageURL := r.JoinURL(href)
+
+						log.Info(imageURL)
+						// grab.Get("./images/", imageURL)
+
 						return
 					}
 				}
@@ -66,7 +76,7 @@ func parseImage(imageULR string, resolution string) {
 	}
 
 	geziyor.NewGeziyor(&geziyor.Options{
-		StartURLs: []string{imageULR},
+		StartURLs: []string{imagePageULR},
 		ParseFunc: parseImageFunc,
 		Exporters: []export.Exporter{&export.JSON{}},
 	}).Start()
