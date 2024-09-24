@@ -1,4 +1,4 @@
-module github.com/kipitix/wallpaperswide_deskup
+module github.com/kipitix/picture_spawn
 
 go 1.23
 

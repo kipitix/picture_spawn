@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kipitix/wallpaperswide_deskup/pkg/downloader"
+	"github.com/kipitix/picture_spawn/pkg/downloader"
 	log "github.com/sirupsen/logrus"
 )
 
