@@ -8,6 +8,7 @@ import (
 
 // SourceParser is an interface for parsing information about picture from a source.
 type SourceParser interface {
-	Parse(ctx context.Context) error
+	Parse(ctx context.Context)
 	PictureInfoChan() <-chan pictureinfo.PictureInfo
+	ErrorChan() <-chan error
 }

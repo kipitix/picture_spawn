@@ -1,5 +1,7 @@
 package pictureinfo
 
+import "context"
+
 // PictureInfo is an interface for a picture information.
 type PictureInfo interface {
 	Name() string       // "Really cool picture"
@@ -11,9 +13,9 @@ type PictureInfo interface {
 // PictureInfoRepo is an interface for a repository of PictureInfo.
 type PictureInfoRepo interface {
 	// StorePictureInfo stores a PictureInfo into repository.
-	StorePictureInfo(picInfo PictureInfo) error
+	StorePictureInfo(ctx context.Context, picInfo PictureInfo) error
 
 	// SearchPictureInfo searches a PictureInfo from repository.
 	// Search based on particular information in PictureInfo.
-	SearchPictureInfo(picInfoRequest PictureInfo) ([]PictureInfo, error)
+	SearchPictureInfo(ctx context.Context, picInfoRequest PictureInfo) ([]PictureInfo, error)
 }
