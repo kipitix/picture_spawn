@@ -5,11 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "SourceParser",
+			"name": "sourceparser",
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
 			"program": "cmd/sourceparser"
+		},
+		{
+			"name": "dataserver",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "cmd/dataserver"
 		}
 	]
 }
