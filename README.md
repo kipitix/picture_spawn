@@ -1,6 +1,6 @@
 # picture_spawn
 
-Desktop application to grab pitures for wallpaper from site wallpaperswide.com and set them to desktop.
+Desktop application to grab pictures for wallpaper from site wallpaperswide.com and set them to desktop.
 
 ## Parts
 
@@ -13,3 +13,9 @@ Desktop application to grab pitures for wallpaper from site wallpaperswide.com a
 - Logger is [zerolog](https://github.com/rs/zerolog)
 - Web page parser is [geziyor](https://github.com/geziyor/geziyor)
 - Web server is [net/http](https://pkg.go.dev/net/http)
+
+## Useful links
+
+[Proper HTTP server shutdown](https://dev.to/mokiat/proper-http-shutdown-in-go-3fji)
+[Go project structure](https://github.com/golang-standards/project-layout)
+[Go and DDD](https://github.com/sklinkert/go-ddd)
