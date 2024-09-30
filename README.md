@@ -19,3 +19,4 @@ Desktop application to grab pictures for wallpaper from site wallpaperswide.com 
 [Proper HTTP server shutdown](https://dev.to/mokiat/proper-http-shutdown-in-go-3fji)
 [Go project structure](https://github.com/golang-standards/project-layout)
 [Go and DDD](https://github.com/sklinkert/go-ddd)
+[Useful Go idiom](https://duncanleung.com/go-idiom-accept-interfaces-return-types/)
