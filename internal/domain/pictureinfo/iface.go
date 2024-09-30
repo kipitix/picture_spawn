@@ -12,10 +12,13 @@ type PictureInfo interface {
 
 // PictureInfoRepo is an interface for a repository of PictureInfo.
 type PictureInfoRepo interface {
-	// StorePictureInfo stores a PictureInfo into repository.
-	StorePictureInfo(ctx context.Context, picInfo PictureInfo) error
+	// Put stores a PictureInfo into repository.
+	Put(ctx context.Context, picInfo PictureInfo) error
+
+	GetRandom(ctx context.Context) (PictureInfo, error)
 
 	// SearchPictureInfo searches a PictureInfo from repository.
 	// Search based on particular information in PictureInfo.
-	SearchPictureInfo(ctx context.Context, picInfoRequest PictureInfo) ([]PictureInfo, error)
+	// Get(ctx context.Context, picInfoRequest PictureInfo) ([]PictureInfo, error)
+
 }

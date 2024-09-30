@@ -11,3 +11,9 @@ etcdctl-member-list:
 
 etcdctl-all-keys:
 	etcdctl get --prefix http
+
+run-sourceparser:
+	go run ./cmd/sourceparser
+
+run-dataserver:
+	go run ./cmd/dataserver

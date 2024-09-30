@@ -9,13 +9,25 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/kipitix/picture_spawn/internal/infrastructure/etcdrepo"
 	"github.com/kipitix/picture_spawn/internal/interface/dataserverapi"
 	"github.com/rs/zerolog/log"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 func main() {
 
-	apiServer := dataserverapi.NewServer()
+	etcdClient, err := clientv3.New(clientv3.Config{
+		Endpoints:   []string{"http://localhost:2379"},
+		DialTimeout: 2 * time.Second,
+	})
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
+	repo := etcdrepo.NewPictureInfoRepoEtcd(etcdClient)
+
+	apiServer := dataserverapi.NewServer(repo)
 
 	httpServer := &http.Server{
 		Addr:    ":8080",

@@ -2,22 +2,26 @@ package dataserverapi
 
 import (
 	"net/http"
+
+	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
 )
 
 type apiServer struct {
-	mux *http.ServeMux
+	mux  *http.ServeMux
+	repo pictureinfo.PictureInfoRepo
 }
 
-func NewServer() *apiServer {
+func NewServer(repo pictureinfo.PictureInfoRepo) *apiServer {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /v1/random/", randomPictureHandler)
-
-	server := &apiServer{
-		mux: mux,
+	srv := &apiServer{
+		mux:  mux,
+		repo: repo,
 	}
 
-	return server
+	mux.HandleFunc("GET /v1/random/", srv.randomPictureHandler)
+
+	return srv
 }
 
 var _ APIServer = (*apiServer)(nil)

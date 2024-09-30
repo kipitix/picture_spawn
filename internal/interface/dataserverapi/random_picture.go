@@ -1,10 +1,10 @@
 package dataserverapi
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 )
 
-func randomPictureHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "got path\n")
+func (s *apiServer) randomPictureHandler(w http.ResponseWriter, r *http.Request) {
+	s.repo.GetRandom(context.TODO())
 }

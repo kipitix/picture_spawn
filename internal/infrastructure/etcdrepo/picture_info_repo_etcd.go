@@ -3,6 +3,7 @@ package etcdrepo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
@@ -23,12 +24,16 @@ func NewPictureInfoRepoEtcd(client *clientv3.Client) *PictureInfoRepoEtcd {
 
 var _ pictureinfo.PictureInfoRepo = (*PictureInfoRepoEtcd)(nil)
 
-func (p *PictureInfoRepoEtcd) StorePictureInfo(ctx context.Context, picInfo pictureinfo.PictureInfo) error {
+func (r *PictureInfoRepoEtcd) Put(ctx context.Context, picInfo pictureinfo.PictureInfo) error {
+	const errT = "failed to store picture info in repo: %w"
 
 	pij := pictureinfo.NewPictureInfoJson(picInfo)
 	data, _ := json.Marshal(pij)
 
-	p.client.Put(ctx, picInfo.URL(), string(data))
+	// Put data
+	if _, err := r.client.Put(ctx, picInfo.URL(), string(data)); err != nil {
+		return fmt.Errorf(errT, err)
+	}
 
 	log.Debug().
 		Str("name", picInfo.Name()).
@@ -40,6 +45,33 @@ func (p *PictureInfoRepoEtcd) StorePictureInfo(ctx context.Context, picInfo pict
 	return nil
 }
 
-func (p *PictureInfoRepoEtcd) SearchPictureInfo(ctx context.Context, picInfoRequest pictureinfo.PictureInfo) ([]pictureinfo.PictureInfo, error) {
+func (r *PictureInfoRepoEtcd) GetRandom(ctx context.Context) (pictureinfo.PictureInfo, error) {
+	const errT = "failed to get random picture info from repo: %w"
+
+	resp, err := r.client.Get(ctx, "", clientv3.WithPrefix())
+	if err != nil {
+		return nil, fmt.Errorf(errT, err)
+	}
+
+	for i, k := range resp.Kvs {
+
+		log.Debug().Any("index", i).
+			Any("key", string(k.Key)).
+			Send()
+
+		// pij := pictureinfo.NewPictureInfoJson(nil)
+		// if err := json.Unmarshal(v.Value, &pij); err != nil {
+		// 	return nil, fmt.Errorf(errT, err)
+		// }
+
+		// return pij, nil
+	}
+
 	return nil, nil
 }
+
+// func (p *PictureInfoRepoEtcd) SearchPictureInfo(ctx context.Context, picInfoRequest pictureinfo.PictureInfo) ([]pictureinfo.PictureInfo, error) {
+// 	// p.client.Get()
+
+// 	return nil, nil
+// }

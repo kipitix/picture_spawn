@@ -1,3 +1,5 @@
+// Application which parse given site (or another source) and puts data into storage
+
 package main
 
 import (
@@ -13,11 +15,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
-// Application which parse given site (or another source) and puts data into storage
-
 func main() {
-
-	parser := sourceparser.NewWallpapersWideSourceParser()
 
 	etcdClient, err := clientv3.New(clientv3.Config{
 		Endpoints:   []string{"http://localhost:2379"},
@@ -29,8 +27,12 @@ func main() {
 
 	repo := etcdrepo.NewPictureInfoRepoEtcd(etcdClient)
 
+	parser := sourceparser.NewWallpapersWideSourceParser()
+
+	pipeline := pipelines.NewParsePictureInfoFromSourceAndPutInRepo(parser, repo, 5*time.Second)
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	pipelines.ParsePictureInfoFromSourceAndStoreInRepo(ctx, parser, repo)
+	pipeline.Do(ctx)
 }

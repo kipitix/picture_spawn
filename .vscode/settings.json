@@ -1,7 +1,9 @@
 {
 	"cSpell.words": [
+		"clientv",
 		"dataserver",
 		"dataserverapi",
+		"etcdrepo",
 		"geziyor",
 		"pictureinfo",
 		"sourceparser",

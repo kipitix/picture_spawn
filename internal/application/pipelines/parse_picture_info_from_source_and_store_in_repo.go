@@ -10,40 +10,59 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	storeMaxDuration = 5 * time.Second
-)
+type ParsePictureInfoFromSourceAndPutInRepo interface {
+	Do(ctx context.Context) error
+}
 
-const (
-	errTemplate = "failed to parse and store picture info from source: %w"
-)
+type parsePictureInfoFromSourceAndPutInRepo struct {
+	sourceParser sourceparser.SourceParser
+	repo         pictureinfo.PictureInfoRepo
+	putTimeout   time.Duration
+}
 
-func ParsePictureInfoFromSourceAndStoreInRepo(ctx context.Context, sourceParser sourceparser.SourceParser, repo pictureinfo.PictureInfoRepo) error {
+func NewParsePictureInfoFromSourceAndPutInRepo(
+	sourceParser sourceparser.SourceParser,
+	repo pictureinfo.PictureInfoRepo,
+	putTimeout time.Duration,
+) *parsePictureInfoFromSourceAndPutInRepo {
+	return &parsePictureInfoFromSourceAndPutInRepo{
+		sourceParser: sourceParser,
+		repo:         repo,
+		putTimeout:   putTimeout,
+	}
+}
+
+var _ ParsePictureInfoFromSourceAndPutInRepo = (*parsePictureInfoFromSourceAndPutInRepo)(nil)
+
+func (p *parsePictureInfoFromSourceAndPutInRepo) Do(ctx context.Context) error {
+	const (
+		errT = "failed to parse and store picture info from source: %w"
+	)
 
 	parserCtx, cancelParse := context.WithCancel(ctx)
 	defer cancelParse() // cancel the context when the function returns
 
-	go sourceParser.Parse(parserCtx)
+	go p.sourceParser.Parse(parserCtx)
 
 	for {
 		select {
-		case picInfo, ok := <-sourceParser.PictureInfoChan():
+		case picInfo, ok := <-p.sourceParser.PictureInfoChan():
 			if !ok {
 				log.Warn().Msg("Parsing finished")
 				return nil // parsing has finished
 			}
 
-			storeCtx, cancelStore := context.WithTimeout(ctx, storeMaxDuration)
+			putCtx, cancelStore := context.WithTimeout(ctx, p.putTimeout)
 			defer cancelStore()
 
 			// store the picture info
-			if err := repo.StorePictureInfo(storeCtx, picInfo); err != nil {
+			if err := p.repo.Put(putCtx, picInfo); err != nil {
 				log.Warn().Msg("Parsing error")
-				return fmt.Errorf(errTemplate, err)
+				return fmt.Errorf(errT, err)
 			}
 
-		case err := <-sourceParser.ErrorChan():
-			return fmt.Errorf(errTemplate, err)
+		case err := <-p.sourceParser.ErrorChan():
+			return fmt.Errorf(errT, err)
 
 		case <-ctx.Done():
 			log.Warn().Msg("Parsing canceled")

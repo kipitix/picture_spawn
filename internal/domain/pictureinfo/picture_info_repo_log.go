@@ -16,7 +16,7 @@ func NewPictureInfoRepoLog() *PictureInfoRepoLog {
 
 var _ PictureInfoRepo = (*PictureInfoRepoLog)(nil)
 
-func (p *PictureInfoRepoLog) StorePictureInfo(ctx context.Context, picInfo PictureInfo) error {
+func (p *PictureInfoRepoLog) Put(ctx context.Context, picInfo PictureInfo) error {
 	log.Debug().
 		Str("name", picInfo.Name()).
 		Str("URL", picInfo.URL()).
@@ -27,6 +27,10 @@ func (p *PictureInfoRepoLog) StorePictureInfo(ctx context.Context, picInfo Pictu
 	return nil
 }
 
-func (p *PictureInfoRepoLog) SearchPictureInfo(ctx context.Context, picInfoRequest PictureInfo) ([]PictureInfo, error) {
+func (p *PictureInfoRepoLog) GetRandom(ctx context.Context) (PictureInfo, error) {
 	return nil, nil
 }
+
+// func (p *PictureInfoRepoLog) SearchPictureInfo(ctx context.Context, picInfoRequest PictureInfo) ([]PictureInfo, error) {
+// 	return nil, nil
+// }
