@@ -14,15 +14,18 @@ import (
 )
 
 func main() {
-	server := &http.Server{
+
+	apiServer := dataserverapi.NewServer()
+
+	httpServer := &http.Server{
 		Addr:    ":8080",
-		Handler: dataserverapi.NewMux(),
+		Handler: apiServer.ServerMux(),
 	}
 
 	shutdownChan := make(chan bool, 1)
 
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().AnErr("HTTP server error: %v", err)
 		}
 
@@ -40,7 +43,7 @@ func main() {
 	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownRelease()
 
-	if err := server.Shutdown(shutdownCtx); err != nil {
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
 		log.Fatal().AnErr("HTTP shutdown error: %v", err)
 	}
 

@@ -1,14 +1,27 @@
 package dataserverapi
 
 import (
-	"fmt"
 	"net/http"
 )
 
-func NewMux() *http.ServeMux {
+type apiServer struct {
+	mux *http.ServeMux
+}
+
+func NewServer() *apiServer {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /path/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "got path\n")
-	})
-	return mux
+
+	mux.HandleFunc("GET /v1/random/", randomPictureHandler)
+
+	server := &apiServer{
+		mux: mux,
+	}
+
+	return server
+}
+
+var _ APIServer = (*apiServer)(nil)
+
+func (s *apiServer) ServerMux() *http.ServeMux {
+	return s.mux
 }
