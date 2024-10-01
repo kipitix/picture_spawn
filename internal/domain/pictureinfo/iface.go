@@ -1,9 +1,12 @@
 package pictureinfo
 
-import "context"
+import (
+	"context"
+)
 
 // PictureInfo is an interface for a picture information.
 type PictureInfo interface {
+	ID() string         // UUID of this picture
 	URL() string        // "http://www.example.com/image.jpg"
 	Name() string       // "Really cool picture"
 	Tags() []string     // tags for this picture, e.g. "cat", "dog"

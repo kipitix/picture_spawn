@@ -2,6 +2,7 @@ package pictureinfo
 
 // Base implementation of PictureInfo
 type pictureInfo struct {
+	id         string
 	url        string
 	name       string
 	tags       []string
@@ -9,8 +10,9 @@ type pictureInfo struct {
 }
 
 // NewPictureInfo creates a new PictureInfo object.
-func NewPictureInfo(url string, name string, tags []string, resolution string) *pictureInfo {
+func NewPictureInfo(id string, url string, name string, tags []string, resolution string) *pictureInfo {
 	return &pictureInfo{
+		id:         id,
 		url:        url,
 		name:       name,
 		tags:       tags,
@@ -20,6 +22,10 @@ func NewPictureInfo(url string, name string, tags []string, resolution string) *
 
 // Ensure what pictureInfo struct implements PictureInfo interface
 var _ PictureInfo = (*pictureInfo)(nil)
+
+func (p *pictureInfo) ID() string {
+	return p.id
+}
 
 func (p *pictureInfo) URL() string {
 	return p.url

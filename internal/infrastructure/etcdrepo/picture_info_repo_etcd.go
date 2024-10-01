@@ -31,11 +31,12 @@ func (r *PictureInfoRepoEtcd) Put(ctx context.Context, picInfo pictureinfo.Pictu
 	data, _ := json.Marshal(pij)
 
 	// Put data
-	if _, err := r.client.Put(ctx, picInfo.URL(), string(data)); err != nil {
+	if _, err := r.client.Put(ctx, picInfo.ID(), string(data)); err != nil {
 		return fmt.Errorf(errT, err)
 	}
 
 	log.Debug().
+		Str("ID", picInfo.ID()).
 		Str("name", picInfo.Name()).
 		Str("URL", picInfo.URL()).
 		Str("tags", strings.Join(picInfo.Tags(), ",")).

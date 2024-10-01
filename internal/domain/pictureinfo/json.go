@@ -1,6 +1,7 @@
 package pictureinfo
 
 type PictureInfoJson struct {
+	ID         string   `json:"id"`
 	URL        string   `json:"url"`
 	Name       string   `json:"name"`
 	Tags       []string `json:"tags"`
@@ -9,6 +10,7 @@ type PictureInfoJson struct {
 
 func NewPictureInfoJson(pi PictureInfo) *PictureInfoJson {
 	return &PictureInfoJson{
+		ID:         pi.ID(),
 		Name:       pi.Name(),
 		URL:        pi.URL(),
 		Tags:       pi.Tags(),
@@ -17,5 +19,5 @@ func NewPictureInfoJson(pi PictureInfo) *PictureInfoJson {
 }
 
 func NewPictureInfoFromJson(pij *PictureInfoJson) *pictureInfo {
-	return NewPictureInfo(pij.Name, pij.URL, pij.Tags, pij.Resolution)
+	return NewPictureInfo(pij.ID, pij.Name, pij.URL, pij.Tags, pij.Resolution)
 }

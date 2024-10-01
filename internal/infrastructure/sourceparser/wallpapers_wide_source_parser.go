@@ -6,6 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/geziyor/geziyor"
 	"github.com/geziyor/geziyor/client"
+	"github.com/google/uuid"
 	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
 	"github.com/kipitix/picture_spawn/internal/domain/sourceparser"
 	"github.com/rs/zerolog/log"
@@ -83,7 +84,7 @@ func (p *WallpapersWideSourceParser) parseImagePage(imagePageULR string, name st
 					if href, ok := sel.Attr("href"); ok {
 						imageURL := r.JoinURL(href)
 
-						p.pictureInfoChan <- pictureinfo.NewPictureInfo(imageURL, name, nil, resolution)
+						p.pictureInfoChan <- pictureinfo.NewPictureInfo(uuid.New().String(), imageURL, name, nil, resolution)
 
 						return
 					}

@@ -7,7 +7,9 @@ toolchain go1.23.1
 require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/geziyor/geziyor v0.0.0-20240812061556-229b8ca83ac1
+	github.com/google/uuid v1.3.1
 	github.com/rs/zerolog v1.33.0
+	go.etcd.io/etcd/client/v3 v3.5.16
 )
 
 require (
@@ -39,7 +41,6 @@ require (
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.16 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.16 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.16 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
