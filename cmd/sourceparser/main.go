@@ -8,17 +8,37 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alexflint/go-arg"
 	"github.com/kipitix/picture_spawn/internal/application/pipelines"
 	"github.com/kipitix/picture_spawn/internal/infrastructure/etcdrepo"
 	"github.com/kipitix/picture_spawn/internal/infrastructure/sourceparser"
+	"github.com/kipitix/picture_spawn/internal/tools/arguments"
+	"github.com/kipitix/picture_spawn/internal/tools/logger"
 	"github.com/rs/zerolog/log"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
+var Version = "0.0.1"
+
+var args struct {
+	EtcdEndpoints string `arg:"-e,--etcd-endpoints" default:"http://localhost:2379" help:"Endpoints to connect to etcd (comma separated)"`
+}
+
 func main() {
+	logger.SetupZerolog()
+
+	log.Info().Msgf("sourceparser v%s", Version)
+
+	log.Info().Msg("parsing args...")
+
+	arg.MustParse(&args)
+
+	log.Info().Msgf("received args: %v", args)
+
+	log.Info().Msgf("connection to etcd...")
 
 	etcdClient, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"http://localhost:2379"},
+		Endpoints:   arguments.ParseEtcdEndpoints(args.EtcdEndpoints),
 		DialTimeout: 2 * time.Second,
 	})
 	if err != nil {
