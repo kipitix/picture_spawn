@@ -33,7 +33,7 @@ func main() {
 
 	arg.MustParse(&args)
 
-	log.Info().Msgf("received args: %v", args)
+	log.Debug().Interface("args", args).Send()
 
 	log.Info().Msgf("connection to etcd...")
 
@@ -45,11 +45,13 @@ func main() {
 		log.Fatal().Err(err)
 	}
 
-	repo := etcdrepo.NewPictureInfoRepoEtcd(etcdClient)
+	repo := etcdrepo.NewImageRepoEtcd(etcdClient)
+
+	// repo2 := imginfo.NewImageRepoLog()
 
 	parser := sourceparser.NewWallpapersWideSourceParser()
 
-	pipeline := pipelines.NewParsePictureInfoFromSourceAndPutInRepo(parser, repo, 5*time.Second)
+	pipeline := pipelines.NewParseImagesFromSourceAndPutInRepo(parser, repo, 5*time.Second)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()

@@ -25,7 +25,7 @@ func main() {
 		log.Fatal().Err(err)
 	}
 
-	repo := etcdrepo.NewPictureInfoRepoEtcd(etcdClient)
+	repo := etcdrepo.NewImageRepoEtcd(etcdClient)
 
 	apiServer := dataserverapi.NewServer(repo)
 

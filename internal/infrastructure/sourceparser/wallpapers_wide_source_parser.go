@@ -7,20 +7,20 @@ import (
 	"github.com/geziyor/geziyor"
 	"github.com/geziyor/geziyor/client"
 	"github.com/google/uuid"
-	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
+	"github.com/kipitix/picture_spawn/internal/domain/imginfo"
 	"github.com/kipitix/picture_spawn/internal/domain/sourceparser"
 	"github.com/rs/zerolog/log"
 )
 
 type WallpapersWideSourceParser struct {
-	pictureInfoChan chan pictureinfo.PictureInfo
-	errorChan       chan error
+	imageChan chan imginfo.Image
+	errorChan chan error
 }
 
 func NewWallpapersWideSourceParser() *WallpapersWideSourceParser {
 	return &WallpapersWideSourceParser{
-		pictureInfoChan: make(chan pictureinfo.PictureInfo),
-		errorChan:       make(chan error),
+		imageChan: make(chan imginfo.Image),
+		errorChan: make(chan error),
 	}
 }
 
@@ -29,12 +29,12 @@ var _ sourceparser.SourceParser = (*WallpapersWideSourceParser)(nil)
 func (p *WallpapersWideSourceParser) Parse(ctx context.Context) {
 	p.parseWallPages()
 
-	close(p.pictureInfoChan)
+	close(p.imageChan)
 	close(p.errorChan)
 }
 
-func (p *WallpapersWideSourceParser) PictureInfoChan() <-chan pictureinfo.PictureInfo {
-	return p.pictureInfoChan
+func (p *WallpapersWideSourceParser) ImageChan() <-chan imginfo.Image {
+	return p.imageChan
 }
 
 func (p *WallpapersWideSourceParser) ErrorChan() <-chan error {
@@ -55,15 +55,15 @@ func (p *WallpapersWideSourceParser) parseWallPages() {
 }
 
 func (p *WallpapersWideSourceParser) parseWallFunc(g *geziyor.Geziyor, r *client.Response) {
+	// parse image page
 	r.HTMLDoc.Find("li.wall").Each(func(i int, s *goquery.Selection) {
 		if href, ok := s.Find("a").Attr("href"); ok {
 			imagePageURL := r.JoinURL(href)
 			name := s.Find("h1").Text()
-			resolution := "1920x1080"
-			p.parseImagePage(imagePageURL, name, resolution)
+			p.parseImagePage(imagePageURL, name)
 		}
 	})
-
+	// parse next page
 	r.HTMLDoc.Find("div.pagination").Find("a").Each(func(i int, s *goquery.Selection) {
 		if s.Text() == "Next »" {
 			if href, ok := s.Attr("href"); ok {
@@ -74,21 +74,29 @@ func (p *WallpapersWideSourceParser) parseWallFunc(g *geziyor.Geziyor, r *client
 	})
 }
 
-func (p *WallpapersWideSourceParser) parseImagePage(imagePageULR string, name string, resolution string) {
+func (p *WallpapersWideSourceParser) parseImagePage(imagePageULR string, name string) {
+	image := imginfo.NewImage(uuid.NewString(), name, nil)
 
 	parseImageFunc := func(g *geziyor.Geziyor, r *client.Response) {
 		r.HTMLDoc.Find("div.wallpaper-resolutions").Each(func(i int, s *goquery.Selection) {
 			sel := s.Find("a")
 			for sel.Nodes != nil {
-				if sel.Nodes[0].FirstChild.Data == resolution {
-					if href, ok := sel.Attr("href"); ok {
-						imageURL := r.JoinURL(href)
+				resolution := sel.Nodes[0].FirstChild.Data
+				log.Debug().Msg(resolution)
+				if href, ok := sel.Attr("href"); ok {
+					imageURL := r.JoinURL(href)
+					log.Debug().Msg(imageURL)
 
-						p.pictureInfoChan <- pictureinfo.NewPictureInfo(uuid.New().String(), imageURL, name, nil, resolution)
+					picture := imginfo.NewPicture(uuid.New().String(), imageURL, resolution)
 
-						return
-					}
+					image.AddPicture(picture)
+
+					// p.imageChan <- imginfo.NewPicture(uuid.New().String(), imageURL, name, nil, resolution)
+					// return
 				}
+
+				// if sel.Nodes[0].FirstChild.Data == resolution {
+				// }
 				sel = sel.NextFiltered("a")
 			}
 		})
@@ -99,4 +107,6 @@ func (p *WallpapersWideSourceParser) parseImagePage(imagePageULR string, name st
 		ParseFunc:   parseImageFunc,
 		LogDisabled: true,
 	}).Start()
+
+	p.imageChan <- image
 }

@@ -5,6 +5,8 @@
 		"dataserverapi",
 		"etcdrepo",
 		"geziyor",
+		"goquery",
+		"imginfo",
 		"Msgf",
 		"pictureinfo",
 		"sourceparser",

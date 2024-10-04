@@ -5,36 +5,36 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
+	"github.com/kipitix/picture_spawn/internal/domain/imginfo"
 	"github.com/kipitix/picture_spawn/internal/domain/sourceparser"
 	"github.com/rs/zerolog/log"
 )
 
-type ParsePictureInfoFromSourceAndPutInRepo interface {
+type ParseImagesFromSourceAndPutInRepo interface {
 	Do(ctx context.Context) error
 }
 
-type parsePictureInfoFromSourceAndPutInRepo struct {
+type parseImagesFromSourceAndPutInRepo struct {
 	sourceParser sourceparser.SourceParser
-	repo         pictureinfo.PictureInfoRepo
+	repo         imginfo.ImageRepo
 	putTimeout   time.Duration
 }
 
-func NewParsePictureInfoFromSourceAndPutInRepo(
+func NewParseImagesFromSourceAndPutInRepo(
 	sourceParser sourceparser.SourceParser,
-	repo pictureinfo.PictureInfoRepo,
+	repo imginfo.ImageRepo,
 	putTimeout time.Duration,
-) *parsePictureInfoFromSourceAndPutInRepo {
-	return &parsePictureInfoFromSourceAndPutInRepo{
+) *parseImagesFromSourceAndPutInRepo {
+	return &parseImagesFromSourceAndPutInRepo{
 		sourceParser: sourceParser,
 		repo:         repo,
 		putTimeout:   putTimeout,
 	}
 }
 
-var _ ParsePictureInfoFromSourceAndPutInRepo = (*parsePictureInfoFromSourceAndPutInRepo)(nil)
+var _ ParseImagesFromSourceAndPutInRepo = (*parseImagesFromSourceAndPutInRepo)(nil)
 
-func (p *parsePictureInfoFromSourceAndPutInRepo) Do(ctx context.Context) error {
+func (p *parseImagesFromSourceAndPutInRepo) Do(ctx context.Context) error {
 	const (
 		errT = "failed to parse and store picture info from source: %w"
 	)
@@ -42,11 +42,12 @@ func (p *parsePictureInfoFromSourceAndPutInRepo) Do(ctx context.Context) error {
 	parserCtx, cancelParse := context.WithCancel(ctx)
 	defer cancelParse() // cancel the context when the function returns
 
+	// start parsing
 	go p.sourceParser.Parse(parserCtx)
 
 	for {
 		select {
-		case picInfo, ok := <-p.sourceParser.PictureInfoChan():
+		case imginfo, ok := <-p.sourceParser.ImageChan():
 			if !ok {
 				log.Warn().Msg("Parsing finished")
 				return nil // parsing has finished
@@ -56,7 +57,7 @@ func (p *parsePictureInfoFromSourceAndPutInRepo) Do(ctx context.Context) error {
 			defer cancelStore()
 
 			// store the picture info
-			if err := p.repo.Put(putCtx, picInfo); err != nil {
+			if err := p.repo.Put(putCtx, imginfo); err != nil {
 				log.Warn().Msg("Parsing error")
 				return fmt.Errorf(errT, err)
 			}

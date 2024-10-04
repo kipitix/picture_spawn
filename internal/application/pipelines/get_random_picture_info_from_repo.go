@@ -2,41 +2,41 @@ package pipelines
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/kipitix/picture_spawn/internal/domain/pictureinfo"
+	"github.com/kipitix/picture_spawn/internal/domain/imginfo"
 )
 
-type GetRandomPictureInfoFromRepo interface {
-	Do(ctx context.Context) (pictureinfo.PictureInfo, error)
+type GetRandomImageFromRepo interface {
+	Do(ctx context.Context) (imginfo.Picture, error)
 }
 
-type getRandomPictureInfoFromRepo struct {
-	repo       pictureinfo.PictureInfoRepo
+type getRandomImageFromRepo struct {
+	repo       imginfo.ImageRepo
 	getTimeout time.Duration
 }
 
-func NewGetRandomPictureInfoFromRepo(repo pictureinfo.PictureInfoRepo, getTimeout time.Duration) *getRandomPictureInfoFromRepo {
-	return &getRandomPictureInfoFromRepo{
+func NewGetRandomPictureInfoFromRepo(repo imginfo.ImageRepo, getTimeout time.Duration) *getRandomImageFromRepo {
+	return &getRandomImageFromRepo{
 		repo:       repo,
 		getTimeout: getTimeout,
 	}
 }
 
-var _ GetRandomPictureInfoFromRepo = (*getRandomPictureInfoFromRepo)(nil)
+var _ GetRandomImageFromRepo = (*getRandomImageFromRepo)(nil)
 
-func (p *getRandomPictureInfoFromRepo) Do(ctx context.Context) (pictureinfo.PictureInfo, error) {
-	const errTemplate = "failed to get random picture info from repo: %w"
+func (p *getRandomImageFromRepo) Do(ctx context.Context) (imginfo.Picture, error) {
+	// const errTemplate = "failed to get random picture info from repo: %w"
 
-	getCtx, cancel := context.WithTimeout(ctx, p.getTimeout)
-	defer cancel()
+	// getCtx, cancel := context.WithTimeout(ctx, p.getTimeout)
+	// defer cancel()
 
-	pi, err := p.repo.GetRandom(getCtx)
+	// pi, err := p.repo.GetRandom(getCtx)
 
-	if err != nil {
-		return nil, fmt.Errorf(errTemplate, err)
-	}
+	// if err != nil {
+	// 	return nil, fmt.Errorf(errTemplate, err)
+	// }
 
-	return pi, nil
+	// return pi, nil
+	return nil, nil
 }

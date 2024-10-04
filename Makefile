@@ -9,8 +9,8 @@ debug-docker-down:
 etcdctl-member-list:
 	etcdctl member list --write-out="table"
 
-etcdctl-all-keys:
-	etcdctl get --prefix http
+etcdctl-all-data:
+	etcdctl get --prefix ""
 
 run-sourceparser:
 	go run ./cmd/sourceparser
